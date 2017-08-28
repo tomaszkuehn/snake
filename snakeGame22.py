@@ -10,35 +10,32 @@ if check_errors[1] > 0 :
 else:
     print("(+) PyGame succesfully initialized")
 
-pygame.display.set_caption("Snake game")
+pygame.display.set_caption("Snake game on steroids")
 playSurface = pygame.display.set_mode((720,460))
 
 gamearena=[]
 im = Image.open("gamearena.jpg")
+mode = im.mode
+size = im.size
+data = im.tobytes()
+imp = pygame.image.fromstring(data, size, mode)
 col,row =  im.size
 pixels = im.load()
 for i in range(0,71):
     for j in range(0,45):
-        r,g,b =  pixels[i,j]
-        if r<50:
+        sumr = 0
+        for x in range(0,7):
+            for y in range(0,7):
+                r,g,b =  pixels[10*i+x,10*j+y]
+                sumr = sumr + r
+        if sumr<10200:
             gamearena.append([10*i,10*j])
-        
-#gamearena=[
-#[200,200],[210,200],[220,200],[230,200],[230,210],[230,220],[240,220],[240,230],
-#    [240,240],[240,250],[230,250],[220,250],[210,250],[200,250],[200,240],
-#    [200,230],[200,220],[200,210]
-#     
-#]
 
 red = pygame.Color(255,0,0)
 green = pygame.Color(0,255,0)
 black = pygame.Color(0,0,0)
 white = pygame.Color(255,255,255)
 brown = pygame.Color(165,42,42)
-
-#sys.path.append('c:/')
-#sys.path.append(os.basename(sys.argv[0]))
-#crash_sound = pygame.mixer.Sound("C:\\sleep.mp3")
 
 #FPS
 fpsController = pygame.time.Clock()
@@ -71,6 +68,18 @@ def showScore():
     Ssurf = sFont.render('Score : {0}'.format(score),True,black)
     Srect = Ssurf.get_rect()
     Srect.midtop = (60,20)
+    playSurface.blit(Ssurf,Srect)
+    
+def showStart():
+    sFont = pygame.font.SysFont('monaco',72)
+    Ssurf = sFont.render('Hit any key to start Snake',True,red)
+    Srect = Ssurf.get_rect()
+    Srect.midtop = (360,240)
+    playSurface.blit(Ssurf,Srect) 
+    sFont = pygame.font.SysFont('monaco',25)
+    Ssurf = sFont.render('Control snake with A-S-D-W keys',True,red)
+    Srect = Ssurf.get_rect()
+    Srect.midtop = (560,290)
     playSurface.blit(Ssurf,Srect)
  
 class food:
@@ -131,6 +140,15 @@ foodlist.append(food())
 
 for count in range(0,3):
     foodlist[count].randomize()
+    
+playSurface.blit(imp,(0,0))
+showStart()
+pygame.display.flip()
+waitkey = 1
+while waitkey:
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            waitkey = 0
 
 while True:
     for event in pygame.event.get():
@@ -169,49 +187,29 @@ while True:
         snakePos[1] += 5
         
     snakeBody.insert(0,list(snakePos))
-    #if snakePos[0] == foodPos[0] and snakePos[1] == foodPos[1]:
-     #   foodSpawn = False
-        #pygame.mixer.Sound.play(crash_sound)
-      #  score +=1
-    #else:
-     #   snakeBody.pop()
-    
-    #if (abs(snakePos[0] - food1.x) < 10) and (abs(snakePos[1] - food1.y) < 10) :
-     #   score +=1
-      #  food1.randomize()
-    #elif (abs(snakePos[0] - food2.x) < 10) and (abs(snakePos[1] - food2.y) < 10) :
-     #   score +=1
-      #  food2.randomize()
-    #else:
-     #   snakeBody.pop()
-    
-    #if foodSpawn == False:
-     #   foodPos = [random.randrange(1,72)*10,random.randrange(1,46)*10]
-    #foodSpawn = True
     
     scoremem = score
     for count in range (0,3):
-        if (abs(snakePos[0] - foodlist[count].x) < 10) and (abs(snakePos[1] - foodlist[count].y) < 10) :
+        if (abs(snakePos[0] - foodlist[count].x) < 20) and (abs(snakePos[1] - foodlist[count].y) < 20) :
             score +=1
             foodlist[count].randomize()
     if scoremem == score:
         snakeBody.pop()
     
-    playSurface.fill(white)
+    #playSurface.fill(white)
+    playSurface.blit(imp,(0,0))
     
     isgameover = 0
     for pos in gamearena:
-        pygame.draw.rect(playSurface, brown, pygame.Rect(pos[0]+0,pos[1]+0,10,10))
+        #pygame.draw.rect(playSurface, brown, pygame.Rect(pos[0]+0,pos[1]+0,10,10))
         if (abs(snakePos[0] - pos[0]) < 10) and (abs(snakePos[1] - pos[1]) < 10) :
             isgameover =1
     if isgameover == 1:
         gameOver()
         
     for pos in snakeBody:
-        #pygame.draw.rect(playSurface, green, pygame.Rect(pos[0],pos[1],10,10))
         pygame.draw.circle(playSurface, green, (pos[0]+0,pos[1]+0),5,0)
     
-    #pygame.draw.circle(playSurface, brown, (foodPos[0]+0,foodPos[1]+0), 5,0)
     
     if snakePos[0] > 710 or snakePos[0] < 0:
         gameOver()
@@ -231,10 +229,6 @@ while True:
         else:
             foodlist[count].update(0,foodlist[count].dir)
 
-
-    
     pygame.display.flip()
     fpsController.tick(23)
-    
-    #print(repr(foodX)+" "+repr(foodY)+" | "+repr(snakePos[0])+" "+repr(snakePos[1]))
 
