@@ -88,11 +88,12 @@ class food:
         self.y = 300
         self.ani_speed_init=10
         self.ani_speed=self.ani_speed_init
-        self.ani = glob.glob("walk/doom_w*.png")
-        self.ani.sort()
+        files = glob.glob("walk/doom_w*.png")
+        files.sort()
+        self.ani = [pygame.image.load(f).convert_alpha() for f in files]
         self.ani_pos=0
         self.ani_max=len(self.ani)-1
-        self.img = pygame.image.load(self.ani[0])
+        self.img = self.ani[0]
         self.dir = 1
         self.HV = 1
         self.update(0,0)
@@ -122,7 +123,7 @@ class food:
                 self.dir = -self.dir 
             
             if self.ani_speed == 0:
-                self.img = pygame.image.load(self.ani[self.ani_pos])
+                self.img = self.ani[self.ani_pos]
                 self.ani_speed = self.ani_speed_init
                 if self.ani_pos == self.ani_max:
                     self.ani_pos=0
@@ -230,5 +231,5 @@ while True:
             foodlist[count].update(0,foodlist[count].dir)
 
     pygame.display.flip()
-    fpsController.tick(23)
+    fpsController.tick(15)
 
